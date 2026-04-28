@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Frontend (Not needed in backend container)
+web/
+node_modules/
+.next/
+
+# Other
+README.md
+LICENSE
+.gemini/
+*.log
