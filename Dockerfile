@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies for Pillow/PyTorch if needed
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -20,10 +20,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the backend code and the model
 COPY api/ ./api/
-COPY ml/ ./ml/
+COPY ml/pneumonia_model.pth ./ml/
 
-# Expose the port the app runs on
+# Expose the port
 EXPOSE 8000
 
-# Command to run the application
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application using Gunicorn for production
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "api.main:app", "--bind", "0.0.0.0:8000"]
