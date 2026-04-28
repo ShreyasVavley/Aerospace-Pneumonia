@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from inference import PneumoniaModel
 
+import torch
+torch.set_num_threads(1)
+
 app = FastAPI(title="AeroScan API", version="1.0.0")
 
 app.add_middleware(
