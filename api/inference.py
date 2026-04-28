@@ -31,6 +31,19 @@ class PneumoniaModel:
 
     def predict(self, image_bytes: bytes):
         image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        
+        # OOD Check: Chest X-rays are grayscale. In RGB format, R=G=B.
+        # We can detect generic color images by checking color variance.
+        import numpy as np
+        img_np = np.array(image)
+        # Calculate std dev across the color channel (axis 2)
+        channel_std = np.std(img_np, axis=2).mean()
+        
+        # If the average difference between R,G,B channels is > 5.0 (allowing for slight JPEG artifacts)
+        # then it is likely a colored photo, not an X-ray.
+        if channel_std > 5.0:
+            raise ValueError("The uploaded image does not appear to be a chest X-ray. Please upload a valid grayscale X-ray scan.")
+            
         tensor = self.transform(image).unsqueeze(0).to(self.device)
         
         with torch.no_grad():
