@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# ML/Training
+ml/training.log
+ml/output.txt
+ml/test_model.py
+
+# Node/Web
+node_modules/
+.next/
+out/
+build/
+.vercel
+
+# Misc
+.DS_Store
+*.swp
+.env
