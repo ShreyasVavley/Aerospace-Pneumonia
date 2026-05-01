@@ -72,11 +72,40 @@ class PneumoniaModel:
     def predict(self, image_bytes: bytes):
         image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         
-        # OOD Check
+        # Advanced OOD (Out-of-Distribution) Check
         img_np = np.array(image)
+        
+        # 1. Color Check: Chest X-rays are strictly grayscale. 
+        # Standard deviation across the R,G,B channels should be near zero.
         channel_std = np.std(img_np, axis=2).mean()
-        if channel_std > 5.0:
-            raise ValueError("The uploaded image does not appear to be a chest X-ray. Please upload a valid grayscale X-ray scan.")
+        
+        # 2. Brightness Check: Chest X-rays have a balanced but relatively dark mean intensity.
+        gray_img = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+        mean_intensity = np.mean(gray_img)
+        
+        # 3. Contrast Check: Chest X-rays have high structural contrast (ribs/organs vs air).
+        contrast_std = np.std(gray_img)
+
+        # Validation Logic:
+        # - channel_std > 5.0 -> Too much color (e.g. landscape photo, selfie)
+        # - mean_intensity < 20 or > 230 -> Image is mostly black or mostly white (noise/garbage)
+        # - contrast_std < 15 -> Image is too flat/blurry (not a high-contrast medical scan)
+        
+        is_valid = True
+        error_msg = ""
+        
+        if channel_std > 8.0:
+            is_valid = False
+            error_msg = "Image is in color. Please upload a grayscale medical X-ray scan."
+        elif mean_intensity < 15 or mean_intensity > 240:
+            is_valid = False
+            error_msg = "Image exposure is invalid. Please upload a clear chest X-ray."
+        elif contrast_std < 15:
+            is_valid = False
+            error_msg = "Image has insufficient structural detail. Please upload a valid chest X-ray scan."
+            
+        if not is_valid:
+            raise ValueError(error_msg)
             
         tensor = self.transform(image).unsqueeze(0).to(self.device)
         
