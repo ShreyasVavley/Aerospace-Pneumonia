@@ -7,11 +7,21 @@ sdk: docker
 pinned: false
 app_port: 7860
 ---
-# AeroScan
+# 🫁 AeroScan
 
-End-to-End Pneumonia Detection System powered by PyTorch ResNet18.
+End-to-End Pneumonia Detection System powered by a custom PyTorch ResNet18 model.
 
-## Project Structure
+## 🚀 Live Deployment
+- **Frontend (Web Interface):** [https://aerospace-pneumonia-2.onrender.com](https://aerospace-pneumonia-2.onrender.com)
+- **Backend (AI Inference API):** [https://shreyasvavley-aeroscan-api.hf.space](https://shreyasvavley-aeroscan-api.hf.space)
+
+## 🏗️ Tech Stack
+- **Machine Learning:** PyTorch, ResNet18
+- **Backend Engine:** FastAPI, Docker
+- **Frontend Interface:** Next.js, TailwindCSS, Glassmorphism UI
+- **Cloud Infrastructure:** Hugging Face Spaces (Backend), Render (Frontend)
+
+## 📁 Project Structure
 
 - `/ml`: Training scripts, dataset loaders, and model exports.
 - `/api`: FastAPI backend for handling predictions and CORS.
