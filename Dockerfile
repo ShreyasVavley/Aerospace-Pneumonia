@@ -4,8 +4,12 @@ FROM python:3.11-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /app/api
 
-# Set the working directory in the container
+# Create user 1000 for Hugging Face Spaces
+RUN useradd -m -u 1000 user
+
+# Set the working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -18,9 +22,12 @@ RUN apt-get update && apt-get install -y \
 COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend code and the model
-COPY api/ ./api/
-COPY ml/pneumonia_model.pth ./ml/
+# Copy the code and change ownership to user
+COPY --chown=user:user api/ ./api/
+COPY --chown=user:user ml/pneumonia_model.pth ./ml/
+
+# Switch to the non-root user required by HF
+USER user
 
 # Expose the port (Hugging Face Spaces requires 7860)
 EXPOSE 7860
