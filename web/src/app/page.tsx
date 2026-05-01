@@ -8,10 +8,11 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const [result, setResult] = useState<{
     prediction: string;
     confidence: number;
+    heatmap: string;
     probabilities: { Normal: number; Pneumonia: number };
   } | null>(null);
 
@@ -30,6 +31,7 @@ export default function Home() {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
       setResult(null);
+      setShowHeatmap(false);
     }
   };
 
@@ -68,6 +70,7 @@ export default function Home() {
 
       const data = await res.json();
       setResult(data.result);
+      setShowHeatmap(true);
     } catch (error) {
       console.error("Inference error:", error);
       alert("Error analyzing the scan. Ensure the FastAPI backend is running.");
@@ -97,7 +100,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-foreground/60 text-lg max-w-2xl mx-auto"
           >
-            End-to-End Pneumonia Detection System powered by PyTorch ResNet18.
+            Explainable Pneumonia Detection powered by PyTorch ResNet18 \u0026 Grad-CAM.
           </motion.p>
         </header>
 
@@ -132,12 +135,32 @@ export default function Home() {
                   className="w-full h-full flex flex-col items-center justify-center relative z-20 pointer-events-none"
                 >
                   <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl mb-6 ring-1 ring-white/10 bg-black/40">
-                    <img src={preview} alt="X-Ray Scan Preview" className="w-full h-auto object-cover opacity-80" />
+                    <img 
+                      src={showHeatmap && result?.heatmap ? `data:image/jpeg;base64,${result.heatmap}` : preview} 
+                      alt="X-Ray Scan Preview" 
+                      className={`w-full h-auto object-cover transition-opacity duration-500 ${showHeatmap ? "opacity-100" : "opacity-80"}`} 
+                    />
+                    
+                    {result && (
+                      <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowHeatmap(!showHeatmap); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border ${
+                            showHeatmap 
+                              ? "bg-brand-emerald text-white border-brand-emerald shadow-[0_0_15px_rgba(16,185,129,0.4)]" 
+                              : "bg-black/40 text-white/70 border-white/10 hover:bg-black/60"
+                          }`}
+                        >
+                          {showHeatmap ? "Heatmap Active" : "View AI Heatmap"}
+                        </button>
+                      </div>
+                    )}
+
                     {isAnalyzing && (
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
                          <div className="flex flex-col items-center gap-4">
                            <Activity className="w-10 h-10 text-brand-emerald animate-pulse" />
-                           <p className="text-sm font-medium tracking-widest uppercase text-white">Analyzing Tensors</p>
+                           <p className="text-sm font-medium tracking-widest uppercase text-white">Generating Heatmap</p>
                          </div>
                       </div>
                     )}
@@ -145,7 +168,7 @@ export default function Home() {
                   {!isAnalyzing && (
                     <div className="flex gap-4 pointer-events-auto">
                       <button 
-                        onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); setResult(null); }}
+                        onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); setResult(null); setShowHeatmap(false); }}
                         className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-colors flex items-center gap-2"
                       >
                         <X className="w-4 h-4" /> Clear
@@ -172,7 +195,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-semibold mb-2">Upload Chest X-Ray</h3>
                   <p className="text-foreground/50 max-w-xs">
-                    Drag and drop your scan here, or click to browse files. Supports JPEG & PNG.
+                    Drag and drop your scan here, or click to browse files. Supports JPEG \u0026 PNG.
                   </p>
                 </motion.div>
               )}
@@ -238,6 +261,12 @@ export default function Home() {
                       <p className="text-xs text-foreground/50 mb-1 uppercase tracking-wider">Pneumonia Prob.</p>
                       <p className="font-mono text-lg text-red-400">{(result.probabilities.Pneumonia * 100).toFixed(2)}%</p>
                     </div>
+                  </div>
+
+                  <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+                     <p className="text-xs text-foreground/60 leading-relaxed italic">
+                        *AI Heatmap (Grad-CAM) highlights regions of interest that influenced the neural network\u0027s decision.
+                     </p>
                   </div>
                 </div>
               </motion.div>
