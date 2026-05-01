@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def train_model(num_epochs=2, batch_size=32, learning_rate=0.001, max_batches=None):
+def train_model(num_epochs=10, batch_size=32, learning_rate=0.001, max_batches=None):
     """
     Train a ResNet18 model for Pneumonia Detection using Transfer Learning (Feature Extraction).
     """
@@ -91,7 +91,7 @@ def train_model(num_epochs=2, batch_size=32, learning_rate=0.001, max_batches=No
             'val': DataLoader(image_datasets['val'], batch_size=batch_size, shuffle=False, num_workers=2),
             'test': DataLoader(image_datasets['test'], batch_size=batch_size, shuffle=False, num_workers=2)
         }
-        logger.info(f"Turbo Training: Using 50 batches (~1,600 images) for 2 epochs to meet deadline.")
+        logger.info(f"Full Training: Using all images for {num_epochs} epochs.")
     except Exception as e:
         logger.error(f"Dataset division failed: {e}")
         return
@@ -131,7 +131,7 @@ def train_model(num_epochs=2, batch_size=32, learning_rate=0.001, max_batches=No
             running_samples = 0
 
             # Limit training batches to 50 for speed
-            current_max_batches = 50 if phase == 'train' else None
+            current_max_batches = None
 
             for batch_idx, (inputs, labels) in enumerate(dataloaders[phase]):
                 if current_max_batches and batch_idx >= current_max_batches:
