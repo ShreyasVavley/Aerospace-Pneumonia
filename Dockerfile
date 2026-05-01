@@ -22,8 +22,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY api/ ./api/
 COPY ml/pneumonia_model.pth ./ml/
 
-# Expose the port
-EXPOSE 8000
+# Expose the port (Hugging Face Spaces requires 7860)
+EXPOSE 7860
 
-# Command to run the application using Gunicorn for production
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application using Uvicorn
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "7860"]
