@@ -86,11 +86,13 @@ class PneumoniaModel:
         # 3. Contrast Check: Chest X-rays have high structural contrast (ribs/organs vs air).
         contrast_std = np.std(gray_img)
 
+        # 4. Graphic/QR Detection: Check for bi-modal distribution (only black and white)
+        # Real X-rays have a wide spread of gray values, not just pure black and white.
+        hist = cv2.calcHist([gray_img], [0], None, [256], [0, 256])
+        # Percentage of pixels that are near-black (0-15) or near-white (240-255)
+        extreme_pixels = (hist[0:15].sum() + hist[240:256].sum()) / gray_img.size
+
         # Validation Logic:
-        # - channel_std > 5.0 -> Too much color (e.g. landscape photo, selfie)
-        # - mean_intensity < 20 or > 230 -> Image is mostly black or mostly white (noise/garbage)
-        # - contrast_std < 15 -> Image is too flat/blurry (not a high-contrast medical scan)
-        
         is_valid = True
         error_msg = ""
         
@@ -103,6 +105,9 @@ class PneumoniaModel:
         elif contrast_std < 15:
             is_valid = False
             error_msg = "Image has insufficient structural detail. Please upload a valid chest X-ray scan."
+        elif extreme_pixels > 0.65:
+            is_valid = False
+            error_msg = "The image appears to be a graphic or QR code. Please upload an organic chest X-ray scan."
             
         if not is_valid:
             raise ValueError(error_msg)
