@@ -124,6 +124,8 @@ export default function Home() {
               onChange={onFileInput}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               disabled={isAnalyzing}
+              aria-label="Upload chest X-ray image for pneumonia analysis"
+              title="Upload chest X-ray image"
             />
             
             <AnimatePresence mode="wait">
