@@ -3,17 +3,12 @@
   "name": "aerospace-pneumonia",
   "compatibility_date": "2026-05-13",
   "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true
-  },
+  "main": ".open-next/worker.js",
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "not_found_handling": "none"
   },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "aerospace-pneumonia"
-    }
-  ]
+  "observability": {
+    "enabled": true
+  }
 }
