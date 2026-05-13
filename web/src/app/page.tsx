@@ -101,7 +101,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-foreground/60 text-lg max-w-2xl mx-auto"
           >
-            Explainable Pneumonia Detection powered by PyTorch ResNet18 \u0026 Grad-CAM.
+            Explainable Pneumonia Detection powered by PyTorch ResNet18 & Grad-CAM.
           </motion.p>
         </header>
 
@@ -198,7 +198,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-semibold mb-2">Upload Chest X-Ray</h3>
                   <p className="text-foreground/50 max-w-xs">
-                    Drag and drop your scan here, or click to browse files. Supports JPEG \u0026 PNG.
+                    Drag and drop your scan here, or click to browse files. Supports JPEG & PNG.
                   </p>
                 </motion.div>
               )}
