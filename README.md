@@ -12,14 +12,15 @@ app_port: 7860
 End-to-End Pneumonia Detection System powered by a custom PyTorch ResNet18 model.
 
 ## 🚀 Live Deployment
-- **Frontend (Web Interface):** [https://aerospace-pneumonia-2.onrender.com](https://aerospace-pneumonia-2.onrender.com)
+- **Frontend (Primary — Cloudflare Workers):** [https://aerospace-pneumonia.shreyasvavley.workers.dev](https://aerospace-pneumonia.shreyasvavley.workers.dev)
+- **Frontend (Mirror — Vercel):** [https://aerospace-pneumonia.vercel.app](https://aerospace-pneumonia.vercel.app)
 - **Backend (AI Inference API):** [https://shreyasvavley-aeroscan-api.hf.space](https://shreyasvavley-aeroscan-api.hf.space)
 
 ## 🏗️ Tech Stack
-- **Machine Learning:** PyTorch, ResNet18
+- **Machine Learning:** PyTorch, ResNet18, Grad-CAM Explainability
 - **Backend Engine:** FastAPI, Docker
-- **Frontend Interface:** Next.js, TailwindCSS, Glassmorphism UI
-- **Cloud Infrastructure:** Hugging Face Spaces (Backend), Render (Frontend)
+- **Frontend Interface:** Next.js 16, TailwindCSS v4, Framer Motion, Glassmorphism UI
+- **Cloud Infrastructure:** Hugging Face Spaces (Backend), Cloudflare Workers via OpenNext (Frontend), Vercel (Mirror)
 
 ## 📁 Project Structure
 
