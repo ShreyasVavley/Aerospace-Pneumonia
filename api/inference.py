@@ -33,13 +33,19 @@ class PneumoniaModel:
 
     def generate_gradcam(self, input_tensor, target_class):
         # Grad-CAM implementation
-        # Get activations from the last convolutional layer
+        # Get activations and gradients from the last convolutional layer
         feature_blobs = []
+        gradient_blobs = []
+        
         def hook_feature(module, input, output):
             feature_blobs.append(output.data.cpu().numpy())
+            
+        def hook_gradient(module, grad_input, grad_output):
+            gradient_blobs.append(grad_output[0].data.cpu().numpy())
         
         # In ResNet18, layer4 is the last convolutional block
-        handle = self.model.layer4.register_forward_hook(hook_feature)
+        handle_forward = self.model.layer4.register_forward_hook(hook_feature)
+        handle_backward = self.model.layer4.register_full_backward_hook(hook_gradient)
         
         # Forward pass
         input_tensor.requires_grad = True
@@ -50,13 +56,14 @@ class PneumoniaModel:
         class_loss = output[0, target_class]
         class_loss.backward()
         
-        # Get gradients
-        grads = input_tensor.grad.data.cpu().numpy()
-        handle.remove()
+        # Remove hooks
+        handle_forward.remove()
+        handle_backward.remove()
         
         # Process features and gradients
         features = feature_blobs[0][0] # (512, 7, 7)
-        weights = np.mean(grads[0], axis=(1, 2)) # Global Average Pooling of gradients
+        grads = gradient_blobs[0][0] # (512, 7, 7)
+        weights = np.mean(grads, axis=(1, 2)) # Global Average Pooling of gradients
         
         cam = np.zeros(features.shape[1:], dtype=np.float32)
         for i, w in enumerate(weights):
