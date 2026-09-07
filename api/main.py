@@ -1,12 +1,42 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import asyncio
+import urllib.request
+from contextlib import asynccontextmanager
 from inference import PneumoniaModel
 
 import torch
 torch.set_num_threads(1)
 
-app = FastAPI(title="AeroScan API", version="1.0.0")
+def ping_self():
+    external_url = os.getenv("RENDER_EXTERNAL_URL")
+    if not external_url:
+        return
+    try:
+        urllib.request.urlopen(external_url)
+        print(f"Pinged {external_url} to keep backend active.")
+    except Exception as e:
+        print(f"Keep-alive ping failed: {e}")
+
+async def keep_alive_loop():
+    while True:
+        await asyncio.sleep(10 * 60) # Wait 10 minutes
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, ping_self)
+        except Exception:
+            pass
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start the keep-alive task
+    task = asyncio.create_task(keep_alive_loop())
+    yield
+    # Cancel the task on shutdown
+    task.cancel()
+
+app = FastAPI(title="AeroScan API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
